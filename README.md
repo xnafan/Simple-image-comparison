@@ -4,6 +4,7 @@ It is based on my 2012 project which was published in an article at The Code Pro
 
 Sample usage:
 
+´´´C#
 FIND DIFFERENCE BETWEEN TWO IMAGES ///////////
 
 //get the difference between two images as a percentage
@@ -24,7 +25,7 @@ List<string> duplicates = DuplicateImageFinder.FindSimilarImages(@"C:\myImage.pn
 bool lookInSubfolders = false;
 float maximumDifferenceInPercentage = .1f; //max 10% of the area may differ
 List<string> duplicates = DuplicateImageFinder.FindSimilarImages(@"C:\myImage.png", @"C:\randomImagefolder\", lookInSubfolders, maximumDifferenceInPercentage);
-
+´´´
 
 
 - Jakob Farian Krarup
