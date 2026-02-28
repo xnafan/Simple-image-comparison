@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -50,15 +51,33 @@ namespace SimpleImageComparisonClassLibrary
             ImageInfo imageToCompareTo = new ImageInfo(pathOfImageToCompareTo);
             var similarImagesFound = new List<string>();
 
-            Parallel.ForEach(imagePaths, imagePath =>
+            var parallelOptions = new ParallelOptions
             {
-                var percentageDiff = ImageTool.GetPercentageDifference(imageToCompareTo, new ImageInfo(imagePath), (byte)threshold);
-                if (percentageDiff <= maximumDifferenceInPercentage && pathOfImageToCompareTo != imagePath)
+                MaxDegreeOfParallelism = Environment.ProcessorCount
+            };
+
+            Parallel.ForEach(imagePaths, parallelOptions, imagePath =>
+            {
+                if (pathOfImageToCompareTo == imagePath)
                 {
-                    lock (similarImagesFound) // Parallel-safe add
+                    return;
+                }
+
+                try
+                {
+                    var imageToCompare = new ImageInfo(imagePath);
+                    var percentageDiff = ImageTool.GetPercentageDifference(imageToCompareTo, imageToCompare, (byte)threshold);
+                    if (percentageDiff <= maximumDifferenceInPercentage)
                     {
-                        similarImagesFound.Add(imagePath);
+                        lock (similarImagesFound)
+                        {
+                            similarImagesFound.Add(imagePath);
+                        }
                     }
+                }
+                catch
+                {
+                    // Skip files that cannot be loaded as images
                 }
             });
             return similarImagesFound;
